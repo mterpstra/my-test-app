@@ -1,14 +1,8 @@
-# .travis.yml snippet
-deploy:
-    - provider: elasticbeanstalk
-    app: my-test-app # Elastic Beanstalk app name
-    env: my-test-app-dev # Elastic Beanstalk env name
-    bucket_name: elasticbeanstalk-us-west-2-827279407044 # S3 bucket used by Elastic Beanstalk
-     region: us-west-2
-     access_key_id:
-         secure: "AKIAIC2B2HQS37UCN6YQ"
-     secret_access_key:
-         secure: "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"
-     on:
-         repo: mterpstra/my-test-app # Deploy only using my user repo for now
-         all_branches: true
+language: go
+sudo: false
+before_script:
+    - go vet ./...
+install:
+# Add Godeps dependencies to GOPATH and PATH
+    - export GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH"
+    - export PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH"
