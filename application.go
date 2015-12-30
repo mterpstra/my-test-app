@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -41,7 +42,12 @@ func main() {
 	http.HandleFunc("/", root)
 	http.HandleFunc("/ping", pong)
 
-	err := http.ListenAndServe(":2000", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
+
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
