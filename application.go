@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+	//"database/sql"
+	// _ "github.com/go-sql-driver/mysql"
 )
 
 var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
@@ -58,27 +58,29 @@ func main() {
 
 	fmt.Printf("Starting Application\n")
 
-	dbConn := os.Getenv("DBCONN")
-	if dbConn == "" {
-		log.Printf("Missing dbConn environment variable")
+	/*
+		dbConn := os.Getenv("DBCONN")
+		if dbConn == "" {
+			log.Printf("Missing dbConn environment variable")
 
-	}
-
-	fmt.Printf("dbConn: %s\n", dbConn)
-
-	db, err := sql.Open("mysql", dbConn)
-	if err != nil {
-		log.Printf("error connecting to db: ", err.Error())
-	}
-	defer db.Close()
-
-	for i := 0; i < len(dbSetup); i++ {
-		fmt.Printf("sql: %s\n", dbSetup[i])
-		_, err := db.Exec(dbSetup[i])
-		if err != nil {
-			log.Printf("Error: %s", err.Error())
 		}
-	}
+
+		fmt.Printf("dbConn: %s\n", dbConn)
+
+		db, err := sql.Open("mysql", dbConn)
+		if err != nil {
+			log.Printf("error connecting to db: ", err.Error())
+		}
+		defer db.Close()
+
+		for i := 0; i < len(dbSetup); i++ {
+			fmt.Printf("sql: %s\n", dbSetup[i])
+			_, err := db.Exec(dbSetup[i])
+			if err != nil {
+				log.Printf("Error: %s", err.Error())
+			}
+		}
+	*/
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/ping", pong)
@@ -88,7 +90,7 @@ func main() {
 		port = "5000"
 	}
 
-	err = http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Printf("ListenAndServe: %s", err.Error())
 	}
