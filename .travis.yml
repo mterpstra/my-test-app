@@ -14,9 +14,9 @@ deploy:
   bucket_name: elasticbeanstalk-us-west-2-827279407044
   region: us-west-2
   access_key_id:
-    secure: "AKIAIC2B2HQS37UCN6YQ"
+    secure: "I cant put this here..."
   secret_access_key:
-    secure: "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"
+    secure: "I cant do this either"
   on:
     repo: mterpstra/my-test-app # Deploy only using my user repo for now      
     branch: master
