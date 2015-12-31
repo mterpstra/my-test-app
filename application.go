@@ -35,7 +35,7 @@ func root(w http.ResponseWriter, req *http.Request) {
 
 func pong(w http.ResponseWriter, req *http.Request) {
 	log.Print("pong handler")
-	io.WriteString(w, "pong v11")
+	io.WriteString(w, "pong v02")
 }
 
 func main() {
