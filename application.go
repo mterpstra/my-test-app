@@ -58,14 +58,14 @@ func main() {
 
 	fmt.Printf("Starting Application\n")
 
+	dbConn := os.Getenv("DBCONN")
+	if dbConn == "" {
+		log.Printf("Missing dbConn environment variable")
+
+	}
+	fmt.Printf("dbConn: %s\n", dbConn)
+
 	/*
-		dbConn := os.Getenv("DBCONN")
-		if dbConn == "" {
-			log.Printf("Missing dbConn environment variable")
-
-		}
-
-		fmt.Printf("dbConn: %s\n", dbConn)
 
 		db, err := sql.Open("mysql", dbConn)
 		if err != nil {
