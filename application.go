@@ -67,8 +67,10 @@ func main() {
 
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
+		fmt.Printf("Error during sql.Open\n")
 		log.Printf("error connecting to db: ", err.Error())
 	} else {
+		fmt.Printf("sql.Open was successful\n")
 		defer db.Close()
 
 		for i := 0; i < len(dbSetup); i++ {
