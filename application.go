@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	//"database/sql"
-	// _ "github.com/go-sql-driver/mysql"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
@@ -65,12 +65,10 @@ func main() {
 	}
 	fmt.Printf("dbConn: %s\n", dbConn)
 
-	/*
-
-		db, err := sql.Open("mysql", dbConn)
-		if err != nil {
-			log.Printf("error connecting to db: ", err.Error())
-		}
+	db, err := sql.Open("mysql", dbConn)
+	if err != nil {
+		log.Printf("error connecting to db: ", err.Error())
+	} else {
 		defer db.Close()
 
 		for i := 0; i < len(dbSetup); i++ {
@@ -80,7 +78,7 @@ func main() {
 				log.Printf("Error: %s", err.Error())
 			}
 		}
-	*/
+	}
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/ping", pong)
@@ -90,7 +88,7 @@ func main() {
 		port = "5000"
 	}
 
-	err := http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Printf("ListenAndServe: %s", err.Error())
 	}
