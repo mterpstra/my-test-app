@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -25,6 +26,145 @@ var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Big Pretzel', '', 8.99);",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Sushi', '', 19.99);",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', '', 12.99);"}
+
+func getRestaurants(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("getRestaurants")
+
+	dbConn := os.Getenv("DBCONN")
+	if dbConn == "" {
+		log.Printf("Missing dbConn environment variable")
+
+	}
+	fmt.Printf("dbConn: %s\n", dbConn)
+
+	db, err := sql.Open("mysql", dbConn)
+	if err != nil {
+		fmt.Printf("Error during sql.Open\n")
+		log.Printf("error connecting to db: ", err.Error())
+		return
+	}
+	fmt.Printf("sql.Open was successful\n")
+	defer db.Close()
+
+	_, err = db.Exec("use test")
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		return
+	}
+	println("Use worked...")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write([]byte("["))
+
+	r, err := db.Query("select * from restaurants")
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		return
+	}
+	defer r.Close()
+
+	count := 0
+	for r.Next() {
+		var restaurant = Restaurant{}
+		err = r.Scan(&restaurant.ID, &restaurant.Name, &restaurant.Image)
+		if err != nil {
+			fmt.Printf("Error scaning row: %s\n", err.Error())
+		} else {
+			fmt.Printf("restaurant: %v\n", restaurant)
+			b, err := json.Marshal(restaurant)
+			if err != nil {
+				fmt.Printf("Error during marshal: %s\n", err.Error())
+			} else {
+				fmt.Printf("Cleaner: %s", string(b))
+				if count > 0 {
+					w.Write([]byte(","))
+				}
+				w.Write(b)
+				count++
+			}
+
+		}
+	}
+
+	w.Write([]byte("]"))
+	println(r)
+}
+
+func getItems(w http.ResponseWriter, req *http.Request) {
+	var restaurantID int
+	fmt.Println("getItems")
+	p := req.URL.Path[1:]
+	fmt.Printf("p: %s\n", p)
+	c, e := fmt.Sscanf(p, "restaurants/%d/items", &restaurantID)
+
+	println(c, e, restaurantID)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+
+	dbConn := os.Getenv("DBCONN")
+	if dbConn == "" {
+		log.Printf("Missing dbConn environment variable")
+
+	}
+	fmt.Printf("dbConn: %s\n", dbConn)
+
+	db, err := sql.Open("mysql", dbConn)
+	if err != nil {
+		fmt.Printf("Error during sql.Open\n")
+		log.Printf("error connecting to db: ", err.Error())
+		return
+	}
+	fmt.Printf("sql.Open was successful\n")
+	defer db.Close()
+
+	_, err = db.Exec("use test")
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		return
+	}
+	println("Use worked...")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write([]byte("["))
+
+	statement := fmt.Sprintf("select * from items where RestaurantID = %d", restaurantID)
+	r, err := db.Query(statement)
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		return
+	}
+	defer r.Close()
+
+	count := 0
+	for r.Next() {
+		var item = Item{}
+		err = r.Scan(&item.ID, &item.RestaurantID, &item.Name, &item.Image, &item.Price)
+		if err != nil {
+			fmt.Printf("Error scaning row: %s\n", err.Error())
+		} else {
+			fmt.Printf("item: %v\n", item)
+			b, err := json.Marshal(item)
+			if err != nil {
+				fmt.Printf("Error during marshal: %s\n", err.Error())
+			} else {
+				fmt.Printf("Cleaner: %s", string(b))
+				if count > 0 {
+					w.Write([]byte(","))
+				}
+				w.Write(b)
+				count++
+			}
+
+		}
+	}
+
+	w.Write([]byte("]"))
+	println(r)
+
+}
 
 func root(w http.ResponseWriter, req *http.Request) {
 
@@ -54,17 +194,13 @@ func pong(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "pong v05")
 }
 
-func main() {
-
-	fmt.Printf("Starting Application\n")
-
+func initializeDB() {
 	dbConn := os.Getenv("DBCONN")
 	if dbConn == "" {
 		log.Printf("Missing dbConn environment variable")
 
 	}
 	fmt.Printf("dbConn: %s\n", dbConn)
-
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
 		fmt.Printf("Error during sql.Open\n")
@@ -81,8 +217,17 @@ func main() {
 			}
 		}
 	}
+}
+
+func main() {
+
+	fmt.Printf("Starting Application\n")
+
+	initializeDB()
 
 	http.HandleFunc("/", root)
+	http.HandleFunc("/restaurants", getRestaurants)
+	http.HandleFunc("/restaurants/", getItems)
 	http.HandleFunc("/ping", pong)
 
 	port := os.Getenv("PORT")
@@ -90,7 +235,7 @@ func main() {
 		port = "5000"
 	}
 
-	err = http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Printf("ListenAndServe: %s", err.Error())
 	}
