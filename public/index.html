@@ -9,32 +9,35 @@
 </head>
 
 <body>
-The content of the document......
-<div id="restaurant-list"></div>
-<div id="items-list"></div>
+    <div id="page-container">
+        <img id="dd-logo"
+            src="https://ac64d826ca1fd03d20c7-d68046d62ab93087d5fd6266860344c9.ssl.cf2.rackcdn.com/dd-logo.jpg" />
+        <img id="header-image"
+            src="https://9ac841189a48110e20e4-d398c6e779f2dc32efb48b49900be41a.ssl.cf2.rackcdn.com/4914b4d8192d6c6cf9dc1cc38d6ab2d6.jpg"/>
+        <h2>Restaurants</h2>
+        <div id="restaurant-list"></div>
+        <h2>Items</h2>
+        <div id="items-list"><p style="text-align:center;font-style:italic;">No restaurant selected</p><br/></div>
+        <div id="footer"></div>
+    </div>
 </body>
-
 </html>
 
 <script id="restaurants-template" type="text/template">
-<table>
-    {{#.}}
-        <tr>
-            <td><img src={{image}} height="50px" /></td>
-            <td><a href="#" class="restaurant-name" data-restaurant="{{id}}">{{name}}</a></td>
-        </tr>
-    {{/.}}
-</table>
+{{#.}}
+    <div class="restaurant">
+        <img src="{{image}}"/>
+        <a href="#" class="restaurant-name" data-restaurant="{{id}}">{{name}}</a>
+    </div>
+{{/.}}
 </script>
 
 <script id="items-template" type="text/template">
-<table>
-    {{#.}}
-        <tr>
-            <td><img src={{image}} height="50px"/></td>
-            <td>{{name}}</td>
-            <td>{{price}}</td>
-        </tr>
-    {{/.}}
-</table>
+{{#.}}
+    <div class="item">
+        <img src="{{image}}"/>
+        <span>{{name}}</span>
+        <span>{{price}}</span>
+    </div>
+{{/.}}
 </script>
