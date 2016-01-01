@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -13,6 +14,9 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
+
+// db is a global to this file.
+var db *sql.DB
 
 var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
 	"CREATE DATABASE test;",
@@ -28,142 +32,46 @@ var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', '', 12.99);"}
 
 func getRestaurants(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("getRestaurants")
-
-	dbConn := os.Getenv("DBCONN")
-	if dbConn == "" {
-		log.Printf("Missing dbConn environment variable")
-
-	}
-	fmt.Printf("dbConn: %s\n", dbConn)
-
-	db, err := sql.Open("mysql", dbConn)
-	if err != nil {
-		fmt.Printf("Error during sql.Open\n")
-		log.Printf("error connecting to db: ", err.Error())
-		return
-	}
-	fmt.Printf("sql.Open was successful\n")
-	defer db.Close()
-
-	_, err = db.Exec("use test")
-	if err != nil {
-		log.Printf("Error: %s", err.Error())
-		return
-	}
-	println("Use worked...")
 
 	w.Header().Set("Content-Type", "application/json")
 
-	w.Write([]byte("["))
-
-	r, err := db.Query("select * from restaurants")
+	list, err := GetAllRestaurants(db)
 	if err != nil {
-		log.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s\n", err.Error())
 		return
 	}
-	defer r.Close()
 
-	count := 0
-	for r.Next() {
-		var restaurant = Restaurant{}
-		err = r.Scan(&restaurant.ID, &restaurant.Name, &restaurant.Image)
-		if err != nil {
-			fmt.Printf("Error scaning row: %s\n", err.Error())
-		} else {
-			fmt.Printf("restaurant: %v\n", restaurant)
-			b, err := json.Marshal(restaurant)
-			if err != nil {
-				fmt.Printf("Error during marshal: %s\n", err.Error())
-			} else {
-				fmt.Printf("Cleaner: %s", string(b))
-				if count > 0 {
-					w.Write([]byte(","))
-				}
-				w.Write(b)
-				count++
-			}
-
-		}
+	b, err := json.Marshal(list)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		return
 	}
-
-	w.Write([]byte("]"))
-	println(r)
+	w.Write(b)
 }
 
 func getItems(w http.ResponseWriter, req *http.Request) {
-	var restaurantID int
-	fmt.Println("getItems")
-	p := req.URL.Path[1:]
-	fmt.Printf("p: %s\n", p)
-	c, e := fmt.Sscanf(p, "restaurants/%d/items", &restaurantID)
 
-	println(c, e, restaurantID)
+	var restaurantID int
+	p := req.URL.Path[1:]
+	_, e := fmt.Sscanf(p, "restaurants/%d/items", &restaurantID)
 	if e != nil {
 		fmt.Println(e.Error())
 	}
 
-	dbConn := os.Getenv("DBCONN")
-	if dbConn == "" {
-		log.Printf("Missing dbConn environment variable")
-
-	}
-	fmt.Printf("dbConn: %s\n", dbConn)
-
-	db, err := sql.Open("mysql", dbConn)
-	if err != nil {
-		fmt.Printf("Error during sql.Open\n")
-		log.Printf("error connecting to db: ", err.Error())
-		return
-	}
-	fmt.Printf("sql.Open was successful\n")
-	defer db.Close()
-
-	_, err = db.Exec("use test")
-	if err != nil {
-		log.Printf("Error: %s", err.Error())
-		return
-	}
-	println("Use worked...")
-
 	w.Header().Set("Content-Type", "application/json")
 
-	w.Write([]byte("["))
-
-	statement := fmt.Sprintf("select * from items where RestaurantID = %d", restaurantID)
-	r, err := db.Query(statement)
+	items, err := GetItemsForRestaurantID(db, restaurantID)
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return
 	}
-	defer r.Close()
 
-	count := 0
-	for r.Next() {
-		var item = Item{}
-		err = r.Scan(&item.ID, &item.RestaurantID, &item.Name, &item.Image, &item.Price)
-		if err != nil {
-			fmt.Printf("Error scaning row: %s\n", err.Error())
-		} else {
-			fmt.Printf("item: %v\n", item)
-			b, err := json.Marshal(item)
-			if err != nil {
-				fmt.Printf("Error during marshal: %s\n", err.Error())
-			} else {
-				fmt.Printf("Cleaner: %s", string(b))
-				if count > 0 {
-					w.Write([]byte(","))
-				}
-				w.Write(b)
-				count++
-			}
-
-		}
+	b, err := json.Marshal(items)
+	if err != nil {
+		fmt.Printf("Error during marshal: %s\n", err.Error())
+		return
 	}
-
-	w.Write([]byte("]"))
-	println(r)
-
+	w.Write(b)
 }
 
 func root(w http.ResponseWriter, req *http.Request) {
@@ -194,36 +102,44 @@ func pong(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "pong v05")
 }
 
-func initializeDB() {
+func initializeDB() (*sql.DB, error) {
+
 	dbConn := os.Getenv("DBCONN")
 	if dbConn == "" {
 		log.Printf("Missing dbConn environment variable")
-
+		return nil, errors.New("Missing dbConn environment variable")
 	}
 	fmt.Printf("dbConn: %s\n", dbConn)
+
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
 		fmt.Printf("Error during sql.Open\n")
 		log.Printf("error connecting to db: ", err.Error())
-	} else {
-		fmt.Printf("sql.Open was successful\n")
-		defer db.Close()
+		return nil, err
+	}
+	fmt.Printf("sql.Open was successful\n")
 
-		for i := 0; i < len(dbSetup); i++ {
-			fmt.Printf("sql: %s\n", dbSetup[i])
-			_, err := db.Exec(dbSetup[i])
-			if err != nil {
-				log.Printf("Error: %s", err.Error())
-			}
+	for i := 0; i < len(dbSetup); i++ {
+		fmt.Printf("sql: %s\n", dbSetup[i])
+		_, err := db.Exec(dbSetup[i])
+		if err != nil {
+			log.Printf("Error: %s", err.Error())
 		}
 	}
+	return db, nil
 }
 
 func main() {
 
 	fmt.Printf("Starting Application\n")
 
-	initializeDB()
+	var err error
+	db, err = initializeDB()
+	if err != nil {
+		fmt.Print("Error initializing DB: %s\n", err.Error())
+		return
+	}
+	defer db.Close()
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/restaurants", getRestaurants)
@@ -235,7 +151,7 @@ func main() {
 		port = "5000"
 	}
 
-	err := http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Printf("ListenAndServe: %s", err.Error())
 	}
