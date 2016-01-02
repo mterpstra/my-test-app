@@ -18,8 +18,7 @@ type Item struct {
 func GetItemsForRestaurantID(db *sql.DB, restaurantID int) ([]Item, error) {
 	var items []Item
 
-	statement := fmt.Sprintf("select * from items where restaurantID = %d", restaurantID)
-	rs, err := db.Query(statement)
+	rs, err := db.Query("select * from items where restaurantID = ?", restaurantID)
 	if err != nil {
 		fmt.Printf("Query Error: %s", err.Error())
 		return nil, err

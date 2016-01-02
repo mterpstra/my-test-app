@@ -26,10 +26,10 @@ var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
 	"INSERT INTO restaurants (Name,Image) VALUES ('The Whale Tale', 'http://www.thewhalerawbar.com/images/logo.png');",
 	"CREATE TABLE items (ID int NOT NULL AUTO_INCREMENT, RestaurantID int NOT NULL, Name varchar(255) NOT NULL, Image varchar(255), Price float, PRIMARY KEY (ID));",
 	"ALTER TABLE items ADD FOREIGN KEY (RestaurantID) REFERENCES restaurants(ID);",
-	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Chicken Wings', '', 9.99);",
-	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Big Pretzel', '', 8.99);",
-	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Sushi', '', 19.99);",
-	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', '', 12.99);"}
+	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Chicken Wings', 'http://cookdiary.net/wp-content/uploads/images/Spicy-Chicken_12957.jpg', 9.99);",
+	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Big Pretzel', 'http://www.thedeliciouslife.com/wp-content/plugins/hot-linked-image-cacher/upload/photos1.blogger.com/img/98/3385/640/foodies_pretzel.jpg', 8.99);",
+	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Sushi', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTAAxaDS1TRufhvUF9zWq0IS5skcYEngPj7M-NQcj8lCREdV67', 19.99);",
+	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', 'http://img1.sunset.timeinc.net/sites/default/files/image/2011/09/razor-clams-colander-l.jpg', 12.99);"}
 
 func getRestaurants(w http.ResponseWriter, req *http.Request) {
 
@@ -109,7 +109,6 @@ func initializeDB() (*sql.DB, error) {
 		log.Printf("Missing dbConn environment variable")
 		return nil, errors.New("Missing dbConn environment variable")
 	}
-	fmt.Printf("dbConn: %s\n", dbConn)
 
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
@@ -117,10 +116,8 @@ func initializeDB() (*sql.DB, error) {
 		log.Printf("error connecting to db: ", err.Error())
 		return nil, err
 	}
-	fmt.Printf("sql.Open was successful\n")
 
 	for i := 0; i < len(dbSetup); i++ {
-		fmt.Printf("sql: %s\n", dbSetup[i])
 		_, err := db.Exec(dbSetup[i])
 		if err != nil {
 			log.Printf("Error: %s", err.Error())
