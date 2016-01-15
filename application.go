@@ -139,15 +139,13 @@ func main() {
 
 	fmt.Printf("Starting Application\n")
 
-	/*
-		var err error
-		db, err = initializeDB()
-		if err != nil {
-			fmt.Print("Error initializing DB: %s\n", err.Error())
-			return
-		}
-		defer db.Close()
-	*/
+	var err error
+	db, err = initializeDB()
+	if err != nil {
+		fmt.Print("Error initializing DB: %s\n", err.Error())
+		return
+	}
+	defer db.Close()
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/restaurants", getRestaurants)
@@ -159,7 +157,7 @@ func main() {
 		port = "5000"
 	}
 
-	err := http.ListenAndServe(":"+port, nil)
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Printf("ListenAndServe: %s", err.Error())
 	}
