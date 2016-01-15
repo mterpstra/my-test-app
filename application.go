@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // db is a global to this file.
