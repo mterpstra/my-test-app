@@ -1,1 +1,1 @@
-go build
+make: go build
