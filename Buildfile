@@ -1,1 +1,1 @@
-build: go build -o bin/application
+build: ./build.sh
