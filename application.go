@@ -139,13 +139,15 @@ func main() {
 
 	fmt.Printf("Starting Application\n")
 
-	var err error
-	db, err = initializeDB()
-	if err != nil {
-		fmt.Print("Error initializing DB: %s\n", err.Error())
-		return
-	}
-	defer db.Close()
+	/*
+		var err error
+		db, err = initializeDB()
+		if err != nil {
+			fmt.Print("Error initializing DB: %s\n", err.Error())
+			return
+		}
+		defer db.Close()
+	*/
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/restaurants", getRestaurants)
