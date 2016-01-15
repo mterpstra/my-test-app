@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,9 +11,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // db is a global to this file.
@@ -104,26 +102,37 @@ func pong(w http.ResponseWriter, req *http.Request) {
 
 func initializeDB() (*sql.DB, error) {
 
+	fmt.Printf("Entered initializeDB, reading ENV Var\n")
+
 	dbConn := os.Getenv("DBCONN")
 	if dbConn == "" {
-		log.Printf("Missing dbConn environment variable")
+		fmt.Printf("Missing DBCONN environment variable\n")
 		return nil, errors.New("Missing dbConn environment variable")
 	}
+	fmt.Printf("Found an ENV Var DBCONN %s\n", dbConn)
 
+	fmt.Printf("Opening DB next\n")
 	db, err := sql.Open("mysql", dbConn)
 	if err != nil {
-		fmt.Printf("Error during sql.Open\n")
-		log.Printf("error connecting to db: ", err.Error())
+		fmt.Printf("Error during sql.Open %s\n", err.Error())
 		return nil, err
 	}
 
+	fmt.Printf("DB is open, lets run these SQL statements next\n")
 	for i := 0; i < len(dbSetup); i++ {
+		fmt.Printf("Running SQL: %s\n", dbSetup[i])
 		_, err := db.Exec(dbSetup[i])
 		if err != nil {
 			log.Printf("Error: %s", err.Error())
 		}
 	}
+
+	fmt.Printf("Wow, all worked. Ending initializeDB()\n")
 	return db, nil
+}
+
+// SomeFunc is just a func
+func SomeFunc() {
 }
 
 func main() {
