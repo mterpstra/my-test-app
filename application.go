@@ -125,7 +125,7 @@ func initializeDB() (*sql.DB, error) {
 		fmt.Printf("Running SQL: %s\n", dbSetup[i])
 		_, err := db.Exec(dbSetup[i])
 		if err != nil {
-			log.Printf("Error: %s", err.Error())
+			fmt.Printf("Error: %s", err.Error())
 		}
 	}
 
