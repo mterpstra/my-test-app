@@ -38,6 +38,8 @@ func getRestaurants(w http.ResponseWriter, req *http.Request) {
 	list, err := GetAllRestaurants(db)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
+		b, _ := json.Marshal(err)
+		w.Write(b)
 		return
 	}
 
@@ -62,7 +64,9 @@ func getItems(w http.ResponseWriter, req *http.Request) {
 
 	items, err := GetItemsForRestaurantID(db, restaurantID)
 	if err != nil {
-		log.Printf("Error: %s", err.Error())
+		fmt.Printf("Error: %s", err.Error())
+		b, _ := json.Marshal(err)
+		w.Write(b)
 		return
 	}
 
