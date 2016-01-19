@@ -18,9 +18,10 @@ import (
 // db is a global to this file.
 var db *sql.DB
 
-var dbSetup = [...]string{"DROP DATABASE IF EXISTS test;",
-	"CREATE DATABASE test;",
-	"USE test;",
+var dbSetup = [...]string{
+	//"DROP DATABASE IF EXISTS ebdb;",
+	//"CREATE DATABASE ebdb IF NOT EXISTS;",
+	"USE ebdb;",
 	"CREATE TABLE restaurants (ID int NOT NULL AUTO_INCREMENT, Name varchar(255) NOT NULL, Image varchar(255) NOT NULL, PRIMARY KEY (ID));",
 	"INSERT INTO restaurants (Name,Image) VALUES ('Leftys', 'http://leftystaverncoralsprings.com/images/sharklogo.png');",
 	"INSERT INTO restaurants (Name,Image) VALUES ('The Whale Tale', 'http://www.thewhalerawbar.com/images/logo.png');",
