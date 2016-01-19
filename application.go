@@ -130,7 +130,7 @@ func initializeDB() (*sql.DB, error) {
 		fmt.Printf("Running SQL: %s\n", dbSetup[i])
 		_, err := db.Exec(dbSetup[i])
 		if err != nil {
-			fmt.Printf("Error: %s", err.Error())
+			fmt.Printf("Error: %s\n", err.Error())
 		}
 	}
 
@@ -152,7 +152,7 @@ func main() {
 		fmt.Print("Error initializing DB: %s\n", err.Error())
 		return
 	}
-	defer db.Close()
+	//defer db.Close()
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/restaurants", getRestaurants)
