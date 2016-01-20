@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -21,7 +20,7 @@ var db *sql.DB
 var dbSetup = [...]string{
 	//"DROP DATABASE IF EXISTS ebdb;",
 	//"CREATE DATABASE ebdb IF NOT EXISTS;",
-	//"USE ebdb;",
+	"USE ebdb;",
 	"CREATE TABLE restaurants (ID int NOT NULL AUTO_INCREMENT, Name varchar(255) NOT NULL, Image varchar(255) NOT NULL, PRIMARY KEY (ID));",
 	"INSERT INTO restaurants (Name,Image) VALUES ('Leftys', 'http://leftystaverncoralsprings.com/images/sharklogo.png');",
 	"INSERT INTO restaurants (Name,Image) VALUES ('The Whale Tale', 'http://www.thewhalerawbar.com/images/logo.png');",
@@ -166,6 +165,6 @@ func main() {
 
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		log.Printf("ListenAndServe: %s", err.Error())
+		fmt.Printf("ListenAndServe: %s", err.Error())
 	}
 }
