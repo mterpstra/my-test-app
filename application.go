@@ -30,7 +30,7 @@ var dbSetup = [...]string{
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Chicken Wings', 'http://cookdiary.net/wp-content/uploads/images/Spicy-Chicken_12957.jpg', 9.99);",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (1, 'Big Pretzel', 'http://www.thedeliciouslife.com/wp-content/plugins/hot-linked-image-cacher/upload/photos1.blogger.com/img/98/3385/640/foodies_pretzel.jpg', 8.99);",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Sushi', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTAAxaDS1TRufhvUF9zWq0IS5skcYEngPj7M-NQcj8lCREdV67', 19.99);",
-	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', 'http://img1.sunset.timeinc.net/sites/default/files/image/2011/09/razor-clams-colander-l.jpg', 12.99);"}
+	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', 'http://img1.sunset.timeinc.net/sites/default/files/image/2011/09/razor-clams-colander-l.jpg', 15.99);"}
 
 // Handler for the GET /restaurants REST request
 func getRestaurants(w http.ResponseWriter, req *http.Request) {
