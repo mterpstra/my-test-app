@@ -49,3 +49,6 @@ h2,#footer {
 .restaurant img,.item img{
     height:50px;
 }
+.selected {
+    background:#EFEFFD ;
+}

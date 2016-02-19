@@ -1,17 +1,7 @@
 $( document ).ready(function() {
 
-
-
-    /*
-    $("body").animate({opacity:'0'}, 2000, function() {
-        $(this).css({color:'green'}).animate({opacity:'1'}, 2000, function() {
-        })
-    });
-    */
-    GetRestaurants()
-
+   GetRestaurants()
    $(document).on("click", ".restaurant-name", GetItems)
-
 
 });
 
@@ -31,6 +21,8 @@ function ShowRestaurants(data)
 
 function GetItems() 
 {
+    $(".restaurant-name").parent().removeClass('selected');
+    $(this).parent().addClass('selected');
     id = $(this).data("restaurant");
     $.get("/restaurants/"+id+"/items", ShowItems);
 }

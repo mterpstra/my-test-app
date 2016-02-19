@@ -17,10 +17,11 @@ import (
 // db is a global to this file.
 var db *sql.DB
 
+// This is not a production solution and these belong in migrations.
 var dbSetup = [...]string{
-	//"DROP DATABASE IF EXISTS ebdb;",
-	//"CREATE DATABASE ebdb IF NOT EXISTS;",
-	//"USE ebdb;",
+	"DROP DATABASE IF EXISTS test;",
+	"CREATE DATABASE IF NOT EXISTS test;",
+	"USE test;",
 	"CREATE TABLE restaurants (ID int NOT NULL AUTO_INCREMENT, Name varchar(255) NOT NULL, Image varchar(255) NOT NULL, PRIMARY KEY (ID));",
 	"INSERT INTO restaurants (Name,Image) VALUES ('Leftys', 'http://leftystaverncoralsprings.com/images/sharklogo.png');",
 	"INSERT INTO restaurants (Name,Image) VALUES ('The Whale Tale', 'http://www.thewhalerawbar.com/images/logo.png');",
@@ -31,10 +32,13 @@ var dbSetup = [...]string{
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Sushi', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTAAxaDS1TRufhvUF9zWq0IS5skcYEngPj7M-NQcj8lCREdV67', 19.99);",
 	"INSERT INTO items(RestaurantID,Name,Image,Price) VALUES (2, 'Clams', 'http://img1.sunset.timeinc.net/sites/default/files/image/2011/09/razor-clams-colander-l.jpg', 12.99);"}
 
+// Handler for the GET /restaurants REST request
 func getRestaurants(w http.ResponseWriter, req *http.Request) {
 
+	// Sets the content type on the http response header
 	w.Header().Set("Content-Type", "application/json")
 
+	// Load the list of all restaurants from the db
 	list, err := GetAllRestaurants(db)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
@@ -43,14 +47,18 @@ func getRestaurants(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Marshal it to JSON
 	b, err := json.Marshal(list)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		return
 	}
+
+	// send it back to the caller
 	w.Write(b)
 }
 
+// Handler for the GET /items/{item_id}/items REST request
 func getItems(w http.ResponseWriter, req *http.Request) {
 
 	var restaurantID int
@@ -137,10 +145,6 @@ func initializeDB() (*sql.DB, error) {
 	return db, nil
 }
 
-// SomeFunc is just a func
-func SomeFunc() {
-}
-
 func main() {
 
 	fmt.Printf("Starting Application\n")
@@ -151,7 +155,7 @@ func main() {
 		fmt.Print("Error initializing DB: %s\n", err.Error())
 		return
 	}
-	//defer db.Close()
+	defer db.Close()
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/restaurants", getRestaurants)
@@ -167,4 +171,6 @@ func main() {
 	if err != nil {
 		fmt.Printf("ListenAndServe: %s", err.Error())
 	}
+
+	fmt.Printf("Ending Application\n")
 }
